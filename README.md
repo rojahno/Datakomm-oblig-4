@@ -1,2 +1,2 @@
-# Datakomm-oblig#4
- socket programming for datakomm
+# dk-a4temp
+Templates for DataKomm assignment A4
