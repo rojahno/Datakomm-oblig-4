@@ -85,7 +85,29 @@ public class TCPClient {
     private boolean sendCommand(String cmd) {
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
-        return false;
+        Boolean isCmdSent = false;
+        try {
+            if (connection.isConnected()) {
+                this.toServer.println(cmd);
+                String readOneLine = this.fromServer.readLine();
+                if (readOneLine.equalsIgnoreCase("cmderr")) {
+                    System.out.println("Command error from the server");
+                }
+                else {
+                    isCmdSent = true;
+                }
+            }
+            else {
+                System.out.println("The client is not connected.");
+                System.out.println("The client was not able to send the message");
+            }
+        }
+
+        catch (IOException e) {
+            System.out.println("Exception : " + e.getMessage());
+
+        }
+        return isCmdSent;
     }
 
     /**
@@ -98,6 +120,7 @@ public class TCPClient {
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
+        
         return false;
     }
 
