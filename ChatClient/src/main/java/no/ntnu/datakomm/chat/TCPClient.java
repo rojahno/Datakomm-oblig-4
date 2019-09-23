@@ -9,6 +9,9 @@ public class TCPClient {
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket connection;
+    private static final int PORT = 1300;
+    private static final String HOST = "datakomm.work";
+
 
     // Hint: if you want to store a message for the last error, store it here
     private String lastError = null;
@@ -26,7 +29,29 @@ public class TCPClient {
         // TODO Step 1: implement this method
         // Hint: Remember to process all exceptions and return false on error
         // Hint: Remember to set up all the necessary input/output stream variables
-        return false;
+
+        try {
+            this.connection = new Socket(host, port);
+
+            System.out.println("connected to:" +host + "" + port);
+            OutputStream out = this.connection.getOutputStream();
+            this.toServer = new PrintWriter(out, true);
+
+
+            InputStream in = this.connection.getInputStream();
+            this.fromServer = new BufferedReader(new InputStreamReader(in));
+        }
+
+        catch (IOException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+
+        catch (NullPointerException e) {
+            System.out.println("Exception : " + e.getMessage());
+        }
+
+        return connection.isConnected();
+
     }
 
     /**
@@ -41,6 +66,7 @@ public class TCPClient {
     public synchronized void disconnect() {
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
+
     }
 
     /**
