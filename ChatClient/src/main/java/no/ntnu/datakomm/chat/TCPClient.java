@@ -9,8 +9,6 @@ public class TCPClient {
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket connection;
-    private static final int PORT = 1300;
-    private static final String HOST = "datakomm.work";
 
 
     // Hint: if you want to store a message for the last error, store it here
@@ -31,22 +29,19 @@ public class TCPClient {
         // Hint: Remember to set up all the necessary input/output stream variables
 
         try {
-            this.connection = new Socket(host, port);
 
-            System.out.println("connected to:" +host + "" + port);
+            this.connection = new Socket(host, port);
+            System.out.println("connected to:" + host + " " + port);
+
             OutputStream out = this.connection.getOutputStream();
             this.toServer = new PrintWriter(out, true);
 
-
             InputStream in = this.connection.getInputStream();
             this.fromServer = new BufferedReader(new InputStreamReader(in));
-        }
 
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Exception: " + e.getMessage());
-        }
-
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             System.out.println("Exception : " + e.getMessage());
         }
 
@@ -66,6 +61,16 @@ public class TCPClient {
     public synchronized void disconnect() {
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
+        if (connection.isConnected()) {
+
+            try {
+                connection.close();
+                connection = null;
+            }
+            catch (IOException e) {
+                System.out.printf("Exception: " + e.getMessage());
+            }
+        }
 
     }
 
@@ -86,27 +91,13 @@ public class TCPClient {
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         Boolean isCmdSent = false;
-        try {
-            if (connection.isConnected()) {
-                this.toServer.println(cmd);
-                String readOneLine = this.fromServer.readLine();
-                if (readOneLine.equalsIgnoreCase("cmderr")) {
-                    System.out.println("Command error from the server");
-                }
-                else {
-                    isCmdSent = true;
-                }
-            }
-            else {
-                System.out.println("The client is not connected.");
-                System.out.println("The client was not able to send the message");
-            }
+
+        if (isConnectionActive()) {
+            this.toServer.println(cmd);
+            this.toServer.println("");
+            isCmdSent = true;
         }
 
-        catch (IOException e) {
-            System.out.println("Exception : " + e.getMessage());
-
-        }
         return isCmdSent;
     }
 
@@ -120,8 +111,23 @@ public class TCPClient {
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        
-        return false;
+
+        boolean sentStatus = false;
+
+        if (isConnectionActive()) {
+            sendCommand("msg " + message);
+            sentStatus = true;
+
+        } else {
+            try {
+                lastError = this.fromServer.readLine();
+
+            } catch (IOException e) {
+                System.out.printf("Exception: " + e.getMessage());
+            }
+        }
+
+        return sentStatus;
     }
 
     /**
@@ -132,7 +138,13 @@ public class TCPClient {
     public void tryLogin(String username) {
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
+
+        if (username != null) {
+            sendCommand("login " + username);
+
+        }
     }
+
 
     /**
      * Send a request for latest user list to the server. To get the new users,
@@ -175,10 +187,18 @@ public class TCPClient {
      */
     private String waitServerResponse() {
         // TODO Step 3: Implement this method
+        String serverResponse = null;
+        try {
+             serverResponse = this.fromServer.readLine();
+        }
+        catch (IOException e) {
+            System.out.printf("Exception: " + e.getMessage());
+
+        }
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
 
-        return null;
+        return serverResponse;
     }
 
     /**
