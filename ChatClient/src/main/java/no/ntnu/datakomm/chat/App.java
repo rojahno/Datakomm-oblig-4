@@ -13,9 +13,11 @@ import javafx.stage.Stage;
 /**
  * Class representing the main Graphical User Interface (GUI). JavaFX interface.
  */
-public class App extends Application {
+public class App extends Application
+{
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         launch(args);
     }
 
@@ -26,12 +28,15 @@ public class App extends Application {
      * @param primaryStage The main "stage" where the GUI will be rendered
      */
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage)
+    {
         URL r = getClass().getClassLoader().getResource("layout.fxml");
         Parent root = null;
-        try {
+        try
+        {
             root = FXMLLoader.load(r);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             System.out.println("Error while loading FXML");
             return;
         }
