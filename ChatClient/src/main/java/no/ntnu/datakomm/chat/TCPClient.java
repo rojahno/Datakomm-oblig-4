@@ -250,16 +250,16 @@ public class TCPClient {
             // Hint: In Step 3 you need to handle only login-related responses.
             // Hint: In Step 3 reuse onLoginResult() method
 
-        String expression = "";
+
         String serverResponse = waitServerResponse();
-        String[] response = serverResponse.split(" ", 2);
+        String[] response = serverResponse.split(" ", 3);
         String commandWord = response[0];
 
 
             switch (commandWord) {
 
                 case "loginok":
-                    onLoginResult(true, response[1]);
+                    onLoginResult(true, response[1] + " " + response[2]);
                     System.out.println("Server logged in");
                     break;
 
@@ -274,6 +274,19 @@ public class TCPClient {
                     onUsersList(users);
                     System.out.println("server: " + response[1]);
                     break;
+
+                case "msg":
+                    onMsgReceived(false,response[1],response[2]);
+                    System.out.println(response[1] + " " + response[2]);
+
+                case "privmsg":
+                    onMsgReceived(true, response[1], response[2]);
+
+                case "msgerr" :
+                    onMsgError(response[1]);
+
+                case "cmderr":
+                    onCmdError(response[1]);
 
                     default:
                         break;
@@ -392,6 +405,9 @@ public class TCPClient {
      */
     private void onCmdError(String errMsg) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            l.onCommandError(errMsg);
+        }
     }
 
     /**
@@ -402,5 +418,8 @@ public class TCPClient {
      */
     private void onSupported(String[] commands) {
         // TODO Step 8: Implement this method
+        for (ChatListener l : listeners) {
+            l.onSupportedCommands(commands);
+        }
     }
 }
