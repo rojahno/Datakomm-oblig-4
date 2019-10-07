@@ -63,6 +63,7 @@ public class TCPClient {
             try {
                 connection.close();
                 connection = null;
+                onDisconnect();
             } catch (IOException e) {
                 System.out.printf("Exception: " + e.getMessage());
             }
@@ -114,13 +115,6 @@ public class TCPClient {
             sendCommand("msg " + message);
             sentStatus = true;
 
-        } else {
-            try {
-                lastError = this.fromServer.readLine();
-
-            } catch (IOException e) {
-                System.out.println("Exception: " + e.getMessage());
-            }
         }
 
         return sentStatus;
@@ -150,6 +144,26 @@ public class TCPClient {
         // TODO Step 5: implement this method
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
         // client and server exchange for user listing.
+
+
+//        if (isConnectionActive()) {
+//            try {
+//
+//                sendCommand("users ");
+//                while (fromServer.readLine() != null) {
+//                    String serverResponse[] = new String[10];
+//                    String response = waitServerResponse();
+//                    int i = 0;
+//                    serverResponse[i] = response;
+//                    i++;
+//                }
+//            }
+//            catch (IOException e) {
+//                System.out.println("Exception: " + e.getMessage());
+//            }
+//
+//
+//        }
 
 
     }
@@ -206,11 +220,10 @@ public class TCPClient {
         String serverResponse = "";
         try {
             serverResponse = this.fromServer.readLine();
-            if (serverResponse == null){
-                connection.close();
-            }
+
         } catch (IOException e) {
             System.out.println("Exception: " + e.getMessage());
+            onDisconnect();
 
         }
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
@@ -256,35 +269,26 @@ public class TCPClient {
             // Hint: In Step 3 you need to handle only login-related responses.
             // Hint: In Step 3 reuse onLoginResult() method
 
-    String expression = "";
-    String serverResponse = waitServerResponse();
+        String expression = "";
+        String serverResponse = waitServerResponse();
+        String[] response = serverResponse.split(" ", 2);
+        String commandWord = response[0];
 
-    if (serverResponse.equalsIgnoreCase("loginok") ){
-        expression= "loginok";
-    }
-    else if(serverResponse.equalsIgnoreCase("loginerr username already in use")){
-        expression = "used username";
-    }
-
-    else if (serverResponse.equalsIgnoreCase("incorrect username format")){
-        expression = "incorrect username format";
-
-            }
-
-
-
-            switch (expression) {
+        
+            switch (commandWord) {
 
                 case "loginok":
 
-                    onLoginResult(true, waitServerResponse());
+                    System.out.println("Server logged in");
+                    onLoginResult(true, response[1]);
                     break;
 
-                case "used username":
-                    onLoginResult(false, waitServerResponse());
+                case "loginerr":
+                    System.out.println("server: " + response[1]);
+                    onLoginResult(false, response[1]);
                     break;
 
-                case "incorrect username format":
+                case "":
                     onLoginResult(false, waitServerResponse());
                     break;
 
@@ -380,6 +384,10 @@ public class TCPClient {
      */
     private void onMsgReceived(boolean priv, String sender, String text) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            TextMessage textMessage = new TextMessage(sender, priv, text);
+            l.onMessageReceived(textMessage);
+        }
     }
 
     /**
@@ -389,6 +397,9 @@ public class TCPClient {
      */
     private void onMsgError(String errMsg) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            l.onMessageError(errMsg);
+        }
     }
 
     /**
