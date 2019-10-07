@@ -146,24 +146,12 @@ public class TCPClient {
         // client and server exchange for user listing.
 
 
-//        if (isConnectionActive()) {
-//            try {
-//
-//                sendCommand("users ");
-//                while (fromServer.readLine() != null) {
-//                    String serverResponse[] = new String[10];
-//                    String response = waitServerResponse();
-//                    int i = 0;
-//                    serverResponse[i] = response;
-//                    i++;
-//                }
-//            }
-//            catch (IOException e) {
-//                System.out.println("Exception: " + e.getMessage());
-//            }
-//
-//
-//        }
+        if (isConnectionActive()) {
+            sendCommand("users");
+            String users[] = {};
+            onUsersList(users);
+
+        }
 
 
     }
@@ -186,13 +174,6 @@ public class TCPClient {
             sendCommand("privmsg " + recipient + message);
             sentStatus = true;
 
-        } else {
-            try {
-                lastError = this.fromServer.readLine();
-
-            } catch (IOException e) {
-                System.out.println("Exception: " + e.getMessage());
-            }
         }
         return sentStatus;
     }
@@ -274,22 +255,24 @@ public class TCPClient {
         String[] response = serverResponse.split(" ", 2);
         String commandWord = response[0];
 
-        
+
             switch (commandWord) {
 
                 case "loginok":
-
-                    System.out.println("Server logged in");
                     onLoginResult(true, response[1]);
+                    System.out.println("Server logged in");
                     break;
 
                 case "loginerr":
-                    System.out.println("server: " + response[1]);
                     onLoginResult(false, response[1]);
+                    System.out.println("server: " + response[1]);
                     break;
 
-                case "":
-                    onLoginResult(false, waitServerResponse());
+                case "users":
+                    String[] users = serverResponse.split(" ");
+                    users[0] = "";
+                    onUsersList(users);
+                    System.out.println("server: " + response[1]);
                     break;
 
                     default:
