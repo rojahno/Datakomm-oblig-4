@@ -91,7 +91,6 @@ public class TCPClient {
 
         if (isConnectionActive()) {
             this.toServer.println(cmd);
-            this.toServer.println("");
             isCmdSent = true;
         }
 
@@ -147,9 +146,7 @@ public class TCPClient {
 
 
         if (isConnectionActive()) {
-            sendCommand("users");
-            String users[] = {};
-            onUsersList(users);
+            sendCommand("users ");
 
         }
 
@@ -259,7 +256,7 @@ public class TCPClient {
             switch (commandWord) {
 
                 case "loginok":
-                    onLoginResult(true, response[1] + " " + response[2]);
+                    onLoginResult(true, response[0]);
                     System.out.println("Server logged in");
                     break;
 
@@ -269,24 +266,30 @@ public class TCPClient {
                     break;
 
                 case "users":
-                    String[] users = serverResponse.split(" ");
-                    users[0] = "";
+                    String[] users = response[2].split(" ");
                     onUsersList(users);
-                    System.out.println("server: " + response[1]);
                     break;
 
                 case "msg":
                     onMsgReceived(false,response[1],response[2]);
                     System.out.println(response[1] + " " + response[2]);
+                    break;
 
                 case "privmsg":
                     onMsgReceived(true, response[1], response[2]);
+                    break;
 
                 case "msgerr" :
                     onMsgError(response[1]);
+                    break;
 
                 case "cmderr":
                     onCmdError(response[1]);
+                    break;
+
+                case "supported":
+                    onSupported(response);
+                    break;
 
                     default:
                         break;
