@@ -35,7 +35,7 @@ public class App extends Application {
             System.out.println("Error while loading FXML");
             return;
         }
-        Scene scene = new Scene(root, 600, 400);
+        Scene scene = new Scene(root, 650, 400);
         scene.getStylesheets().add("styles/style.css");
         primaryStage.setTitle("NTNU Ålesund - ID203012 - ChatClient");
         primaryStage.setScene(scene);
