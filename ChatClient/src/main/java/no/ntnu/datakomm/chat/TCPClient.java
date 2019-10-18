@@ -242,9 +242,17 @@ public class TCPClient {
                     break;
 
                 case "users":
-                    String users = response[1] + " " + response[2];
-                    String[] userArray = users.split(" ");
-                    onUsersList(userArray);
+                    if (response[2] != null) {
+
+                        String users = response[1] + " " + response[2];
+                        String[] userArray = users.split(" ");
+                        onUsersList(userArray);
+                    }
+                    else {
+                        String users = response[1];
+                        String[] userArray = users.split(" ");
+                        onUsersList(userArray);
+                    }
                     break;
 
                 case "msg":
